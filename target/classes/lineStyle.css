@@ -1,0 +1,60 @@
+.series {
+    -fx-background-color: #BDBDBD;
+ }
+
+ .axis-label {
+   -fx-text-fill: red;
+ }
+
+ .chart-alternative-row-fill {
+     -fx-fill: #F3F3F3;
+     -fx-stroke: transparent;
+     -fx-stroke-width: 0;
+ }
+
+ .chart-series-line {
+     -fx-stroke-width: 3px;
+     -fx-effect: null;
+ }
+/*
+ .chart-series-line:hover {
+    -fx-stroke-width: 5px;
+ }
+*/
+.default-color0.chart-series-line { -fx-stroke: #3F3F3F; }
+.default-color1.chart-series-line { -fx-stroke: #3F3F3F; }
+.default-color2.chart-series-line { -fx-stroke: #3F3F3F; }
+.default-color3.chart-series-line { -fx-stroke: #3F3F3F; }
+.default-color4.chart-series-line { -fx-stroke: #3F3F3F; }
+.default-color5.chart-series-line { -fx-stroke: #3F3F3F; }
+.default-color6.chart-series-line { -fx-stroke: #3F3F3F; }
+.default-color7.chart-series-line { -fx-stroke: #3F3F3F; }
+.default-color8.chart-series-line { -fx-stroke: #3F3F3F; }
+.default-color9.chart-series-line { -fx-stroke: #3F3F3F; }
+.default-color10.chart-series-line { -fx-stroke: #3F3F3F; }
+.default-color11.chart-series-line { -fx-stroke: #3F3F3F; }
+.default-color12.chart-series-line { -fx-stroke: #3F3F3F; }
+.default-color13.chart-series-line { -fx-stroke: #3F3F3F; }
+.default-color14.chart-series-line { -fx-stroke: #3F3F3F; }
+
+
+.default-color0.chart-series-line:hover { -fx-stroke: #FF0D0D; }
+.default-color1.chart-series-line:hover { -fx-stroke: #FF0D0D; }
+.default-color2.chart-series-line:hover { -fx-stroke: #FF0D0D; }
+.default-color3.chart-series-line:hover { -fx-stroke: #FF0D0D; }
+.default-color4.chart-series-line:hover { -fx-stroke: #FF0D0D; }
+.default-color5.chart-series-line:hover { -fx-stroke: #FF0D0D; }
+.default-color6.chart-series-line:hover { -fx-stroke: #FF0D0D; }
+.default-color7.chart-series-line:hover { -fx-stroke: #FF0D0D; }
+.default-color8.chart-series-line:hover { -fx-stroke: #FF0D0D; }
+.default-color9.chart-series-line:hover { -fx-stroke: #FF0D0D; }
+.default-color10.chart-series-line:hover { -fx-stroke: #FF0D0D; }
+.default-color11.chart-series-line:hover { -fx-stroke: #FF0D0D; }
+.default-color12.chart-series-line:hover { -fx-stroke: #FF0D0D; }
+.default-color13.chart-series-line:hover { -fx-stroke: #FF0D0D; }
+.default-color14.chart-series-line:hover { -fx-stroke: #FF0D0D; }
+
+
+#series0:hover {
+  -fx-background-color: #006699;
+}
