@@ -1,6 +1,6 @@
 package axonTextTool;
-import axonTextTool.ReadText;
 import javafx.application.Application;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -12,13 +12,14 @@ import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -29,9 +30,10 @@ import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 
-
 /**
- * Created by Patrick on 5/16/14.
+ * A plotting tool for analyzing Axon Text Files, the data structure from the Molecular Devices DataDigi DAQ
+ * @author Patrick Daniel
+ * @date May 2014
  */
 public class LineChartAxon extends Application {
 
@@ -40,22 +42,88 @@ public class LineChartAxon extends Application {
     private ContextMenu contextMenu;
     private String fileName;
     private Scene scene;
+    private double[] defaultVX = new double[2];
+    private double[] defaultVY = new double[2];
 
     public void start(final Stage primaryStage) {
+
+        BorderPane borderPane = new BorderPane();
         //Create the LineChart for Stimulation (Voltage) Data
-        NumberAxis yVAxis = new NumberAxis();
-        NumberAxis xVAxis = new NumberAxis();
+        final NumberAxis yVAxis = new NumberAxis();
+        final NumberAxis xVAxis = new NumberAxis();
         yVAxis.setLabel("MilliVolts"); // This needs to be dynamic for either voltage or Current
         final LineChart voltageChart = new LineChart(xVAxis,yVAxis); //Create a line chart node
         voltageChart.setCreateSymbols(false); //disables Symbols on each data point
         voltageChart.setLegendVisible(false); //Disable the legend that displays the series
+        voltageChart.setAnimated(false); //Animation with multiple series looks sluggish
+
+
         //Create LineChart for Response (Current) Data
         NumberAxis xCAxis = new NumberAxis();
-        NumberAxis yCAxis = new NumberAxis();
+        final NumberAxis yCAxis = new NumberAxis();
         final LineChart currentChart = new LineChart(xCAxis,yCAxis);
         yCAxis.setLabel("picoAmps");
         currentChart.setCreateSymbols(false);
         currentChart.setLegendVisible(false);
+        currentChart.setAnimated(false);
+
+        //Gain Control Buttons
+        final Image ICON_UP = new Image("up-icon-30x30.png");
+        Button upGainC = new Button();
+        upGainC.setGraphic(new ImageView(ICON_UP));
+        upGainC.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                yVAxis.setAutoRanging(false);
+                yVAxis.setUpperBound(yVAxis.getUpperBound() - yVAxis.getTickUnit()*2);
+            }
+        });
+        final Image ICON_DOWN = new Image("down-icon-30x30.png");
+        Button downGainC = new Button();
+        downGainC.setGraphic(new ImageView(ICON_DOWN));
+        downGainC.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                yVAxis.setAutoRanging(false);
+                System.out.println(yVAxis.getUpperBound());
+                System.out.println(yVAxis.getTickUnit());
+                yVAxis.setUpperBound(yVAxis.getUpperBound() + yVAxis.getTickUnit()*2);
+            }
+        });
+        Button upGainV = new Button();
+        upGainV.setGraphic(new ImageView(ICON_UP));
+        upGainV.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                yVAxis.setAutoRanging(false);
+                yVAxis.setUpperBound(yVAxis.getUpperBound() - yVAxis.getTickUnit()*2);
+            }
+        });
+        Button downGainV = new Button();
+        downGainV.setGraphic(new ImageView(ICON_DOWN));
+        downGainV.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                yVAxis.setAutoRanging(false);
+                System.out.println(yVAxis.getUpperBound());
+                System.out.println(yVAxis.getTickUnit());
+                yVAxis.setUpperBound(yVAxis.getUpperBound() + yVAxis.getTickUnit()*2);
+            }
+        });
+
+
+
+        Button resetAxes = new Button("Reset Scale");
+        resetAxes.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                yVAxis.setLowerBound(defaultVY[0]);
+                yVAxis.setUpperBound(defaultVY[1]);
+                xVAxis.setLowerBound(defaultVX[0]);
+                xVAxis.setUpperBound(defaultVX[1]);
+            }
+        });
+
         //Create Right Click menu
         contextMenu = new ContextMenu();
         MenuItem menuItem = new MenuItem("Print Data");
@@ -64,12 +132,20 @@ public class LineChartAxon extends Application {
             @Override
             public void handle(ActionEvent arg0) {
                 if (selectedSeries != null) { //checks to make sure mouse is over a series ser set
-                    System.out.println(selectedSeries.getData());
+                      ObservableList<XYChart.Data> data = selectedSeries.getData();
+                    for (int i = 0; i < data.size(); i++) {
+                        System.out.println("(" +data.get(i).getXValue() + "," + data.get(i).getYValue() + ")");
+                    }
                 }
             }
         });
+        //Toolbar on the top
+        ToolBar toolBar = new ToolBar();
 
-        //Create Grid node for the Root
+        //text to display the filename
+        final Text filenameTxt = new Text("");
+
+        //Create Grid node for the charts
         final GridPane grid = new GridPane(); //ROOT NODE
         grid.setAlignment(Pos.TOP_LEFT);//Aligns the grid origin
         grid.setHgap(1); //manage the horizontal gap
@@ -77,26 +153,43 @@ public class LineChartAxon extends Application {
         grid.setPadding(new Insets(25,10,25,25)); //set the padding between cells
         grid.add(voltageChart,0,0);
         grid.add(currentChart,0,1);
+        GridPane btnGrid =  new GridPane();
 
-        final Button openFileBtn = new Button("Select a File");
+        btnGrid.add(upGainC, 0, 0);
+        btnGrid.add(downGainC,1,0);
+
+        btnGrid.add(upGainV, 0,1);
+        btnGrid.add(downGainV,1,1);
+        grid.add(btnGrid,1,0);
+
+        //Open File Button
+        final Button openFileBtn = new Button("Load");
         final FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter txtFilter = new FileChooser.ExtensionFilter("Axon Text Files", "*.atf"); //Show only Axon Text Files by default
         fileChooser.getExtensionFilters().add(txtFilter);
-        final Text filenameTxt = new Text("test");
+
         openFileBtn.setOnAction(//Click the Button!
                 new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent actionEvent) {
-                        removeSeries(voltageChart,currentChart,primaryStage);
+                        removeSeries(voltageChart, currentChart, primaryStage);
                         File file = fileChooser.showOpenDialog(primaryStage);
-                        if(file != null) {
-                            Trace[] data = loadFile(file,filenameTxt);
-                            setData(voltageChart,currentChart, data); //Use this function to create several series and poulate each with data
+                        if (file != null) {
+                            Trace[] data = loadFile(file, filenameTxt);
+                            setData(voltageChart, currentChart, data); //Use this function to create several series and poulate each with data
                         }
+                        //Collect the default axes sizes in case of reset
+                        xVAxis.setAutoRanging(true);
+                        yVAxis.setAutoRanging(true);
+                        defaultVX[0] = xVAxis.getLowerBound();
+                        defaultVX[1] = xVAxis.getUpperBound();
+                        defaultVY[0] = yVAxis.getLowerBound();
+                        defaultVY[1] = yVAxis.getUpperBound();
                     }
                 }
         );
-
+        toolBar.getItems().add(openFileBtn);
+        //Save Picture Button
         final Button savePNGBtn = new Button("Save PNG");
         savePNGBtn.setOnAction(
                 new EventHandler<ActionEvent>() {
@@ -107,12 +200,15 @@ public class LineChartAxon extends Application {
                     }
                 }
         );
+        toolBar.getItems().add(savePNGBtn);
+//        toolBar.getItems().add(upGain);
+//        toolBar.getItems().add(downGain);
+        toolBar.getItems().add(resetAxes);
+        toolBar.getItems().add(filenameTxt);
+        borderPane.setTop(toolBar);
+        borderPane.setCenter(grid);
 
-        grid.add(filenameTxt,2,0);
-        grid.add(savePNGBtn,1,2);
-        grid.add(openFileBtn,0,2);
-        this.scene = new Scene(grid,800,1000,Color.GREY);
-//        scene.getStylesheets().add(LineChartAxon.class.getResource("LineChartAxon.css").toExternalForm());
+        this.scene = new Scene(borderPane,800,1000,Color.GREY);
         primaryStage.setScene(scene);
 
         scene.getStylesheets().add("lineStyle.css");
@@ -190,18 +286,6 @@ public class LineChartAxon extends Application {
     private void applyMouseEvents(final XYChart.Series series) {
 
         final Node node = series.getNode();
-        node.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if (node.getEffect() == null) {
-                    node.setEffect(ds); //Dropshadow highlight
-                }
-                else {
-                    node.setEffect(null);
-                }
-            }
-        });
-
         node.setOnMouseReleased(new EventHandler<MouseEvent>() {
 
             @Override
@@ -210,7 +294,6 @@ public class LineChartAxon extends Application {
                     contextMenu.show(node, mouseEvent.getScreenX() + 1, mouseEvent.getScreenY() + 1);
                     // Set as selected
                     selectedSeries = series; //Set as the selectedSeries, if
-                    System.out.println("Selected Series data " + selectedSeries.getData());
                 }
             }
         });
@@ -228,6 +311,3 @@ public class LineChartAxon extends Application {
         launch(args);
     }
 }
-//TODO Save each chart as a small image file, eventually make a mosaic for an entire experiment
-//TODO comment checked, MOUSEOVER to
-//TODO Load in second graph with Voltage

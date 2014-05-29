@@ -2,9 +2,10 @@ package axonTextTool;
 
 import java.util.ArrayList;
 import java.util.List;
-
 /**
- * Created by Patrick on 5/19/14.
+ * Trace Objects store the data for a single stimulation event.
+ * @author Patrick Daniel
+ * @date May 2014
  */
 public class Trace{
     private String filename;
@@ -55,7 +56,6 @@ public class Trace{
     }
 
     public void setCurrentData(ArrayList<Double> current) {
-//        this.currentData = convertList(current);
         this.currentList = current;
     }
 

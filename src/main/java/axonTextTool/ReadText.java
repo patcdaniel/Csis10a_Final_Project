@@ -1,5 +1,8 @@
-package axonTextTool; /**
- * Created by Patrick on 5/13/14.
+package axonTextTool;
+/**
+ * Object to import and create Trace objects from.
+ * @author Patrick Daniel
+ * @date May 2014
  */
 import java.io.*;
 import java.util.ArrayList;
@@ -18,6 +21,7 @@ public class ReadText {
 
     private void setArrayLists() {
         this.arrayLists = new ArrayList[this.colNum];
+
         System.out.println("The length of the arrayList is: " + arrayLists.length);
     }
 
@@ -26,6 +30,13 @@ public class ReadText {
             this.arrayLists[i] = new ArrayList<Double>();
         }
     }
+
+    /**
+     * Loads text file and creates Trace object for each event
+     * @param file File object for the text file to be loaded
+     * @throws IOException
+     * @throws FileNotFoundException
+     */
 
     public void readFile(File file) throws IOException, FileNotFoundException { //IOException has to been here for FileReader!!
         String nextLine = ""; //Will store each line
@@ -63,7 +74,7 @@ public class ReadText {
 
     /**
      * Check if the buffered stream in still in the header section of the textfile by looking for a single quotation at the start of the line
-     * @param inLine
+     * @param inLine String containing an entire line from an experiment
      * @return Boolean
      */
     private static Boolean isHeader(String inLine, int lineIndex) {
@@ -72,8 +83,8 @@ public class ReadText {
 
     /**
      * Initialize an array of Traces and assign the sweep number and filename
-     * @param sweepNum
-     * @param filename
+     * @param sweepNum Int storing the number of sweep from a stimulation
+     * @param filename Filename of the text file being processed
      * @return Trace[]
      */
     private static Trace[] makeTraces(int sweepNum, String filename) {
@@ -108,7 +119,7 @@ public class ReadText {
 
     /**
      * parseData breaks up a string and appends to arrayLists.
-     * @param dataLine
+     * @param dataLine Single buffered line from text file
      */
     private void parseData(String dataLine) {
         String[] dataArray =  dataLine.split("\t"); //Split up the buffered line, to a String array
@@ -119,7 +130,7 @@ public class ReadText {
 
     /**
      * setTraceData uses Trace set methods to set teh Data
-     * @param experimentData
+     * @param experimentData Array of Trace objects to be populated with data
      */
     public void setTraceData(Trace[] experimentData) {
         int j = 1;
