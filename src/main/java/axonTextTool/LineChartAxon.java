@@ -13,7 +13,6 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
@@ -38,7 +37,6 @@ import java.io.IOException;
 public class LineChartAxon extends Application {
 
     private XYChart.Series selectedSeries; //Will Use to store which ever series is currently selected
-    private DropShadow ds = new DropShadow(); //use Drop shadow effect to highlight series that is desired
     private ContextMenu contextMenu;
     private String fileName;
     private Scene scene;
@@ -74,8 +72,8 @@ public class LineChartAxon extends Application {
         upGainC.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                yVAxis.setAutoRanging(false);
-                yVAxis.setUpperBound(yVAxis.getUpperBound() - yVAxis.getTickUnit()*2);
+                yCAxis.setAutoRanging(false);
+                yCAxis.setUpperBound(yCAxis.getUpperBound() - yCAxis.getTickUnit()*2);
             }
         });
         final Image ICON_DOWN = new Image("down-icon-30x30.png");
@@ -84,10 +82,8 @@ public class LineChartAxon extends Application {
         downGainC.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                yVAxis.setAutoRanging(false);
-                System.out.println(yVAxis.getUpperBound());
-                System.out.println(yVAxis.getTickUnit());
-                yVAxis.setUpperBound(yVAxis.getUpperBound() + yVAxis.getTickUnit()*2);
+                yCAxis.setAutoRanging(false);
+                yCAxis.setUpperBound(yCAxis.getUpperBound() + yCAxis.getTickUnit()*2);
             }
         });
         Button upGainV = new Button();
@@ -105,24 +101,10 @@ public class LineChartAxon extends Application {
             @Override
             public void handle(ActionEvent actionEvent) {
                 yVAxis.setAutoRanging(false);
-                System.out.println(yVAxis.getUpperBound());
-                System.out.println(yVAxis.getTickUnit());
                 yVAxis.setUpperBound(yVAxis.getUpperBound() + yVAxis.getTickUnit()*2);
             }
         });
 
-
-
-        Button resetAxes = new Button("Reset Scale");
-        resetAxes.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                yVAxis.setLowerBound(defaultVY[0]);
-                yVAxis.setUpperBound(defaultVY[1]);
-                xVAxis.setLowerBound(defaultVX[0]);
-                xVAxis.setUpperBound(defaultVX[1]);
-            }
-        });
 
         //Create Right Click menu
         contextMenu = new ContextMenu();
@@ -153,13 +135,27 @@ public class LineChartAxon extends Application {
         grid.setPadding(new Insets(25,10,25,25)); //set the padding between cells
         grid.add(voltageChart,0,0);
         grid.add(currentChart,0,1);
+
         GridPane btnGrid =  new GridPane();
+        Text gainUp = new Text("Increase Gain");
+        Text gainDown = new Text("Decrease Gain");
+        Text gainUpV = new Text("Increase Gain");
+        Text gainDownV = new Text("Decrease Gain");
+        btnGrid.setHgap(5); //Horizontal gap between cells
+        btnGrid.setVgap(250); //Vertical gap between cells on the grid
 
-        btnGrid.add(upGainC, 0, 0);
-        btnGrid.add(downGainC,1,0);
+        btnGrid.add(gainDown,3,1);
+        btnGrid.add(gainUp,1,1);
 
-        btnGrid.add(upGainV, 0,1);
-        btnGrid.add(downGainV,1,1);
+
+        btnGrid.add(upGainC, 0, 1);
+        btnGrid.add(downGainC,2,1);
+
+        btnGrid.add(upGainV, 0,0);
+        btnGrid.add(downGainV,2,0);
+
+        btnGrid.add(gainDownV,3,0);
+        btnGrid.add(gainUpV,1,0);
         grid.add(btnGrid,1,0);
 
         //Open File Button
@@ -201,9 +197,6 @@ public class LineChartAxon extends Application {
                 }
         );
         toolBar.getItems().add(savePNGBtn);
-//        toolBar.getItems().add(upGain);
-//        toolBar.getItems().add(downGain);
-        toolBar.getItems().add(resetAxes);
         toolBar.getItems().add(filenameTxt);
         borderPane.setTop(toolBar);
         borderPane.setCenter(grid);
@@ -234,10 +227,6 @@ public class LineChartAxon extends Application {
                 series.getData().add(new XYChart.Data(data[i].getTimeList().get(j),data[i].getVoltageList().get(j)));
                 seriesC.getData().add(new XYChart.Data(data[i].getTimeList().get(j),data[i].getCurrentList().get(j)));
             }
-//                  for (int j = 0; j < data[i].getTime().length; j++) {
-//                series.getData().add(new XYChart.Data(data[i].getTime()[j],data[i].getVoltageData()[j]));
-//                seriesC.getData().add(new XYChart.Data(data[i].getTime()[j],data[i].getCurrentData()[j]));
-//            }
             lineChart.getData().add(series);
             currentLine.getData().add(seriesC);
             applyMouseEvents(series);
@@ -300,6 +289,13 @@ public class LineChartAxon extends Application {
 
     }
 
+    /**
+     * Remove the previous series for both charts
+     * @param lineChart
+     * @param lineChart2
+     * @param primaryStage
+     */
+
     private  void removeSeries(LineChart lineChart,LineChart lineChart2, Stage primaryStage) {
         lineChart.getData().clear();
         lineChart2.getData().clear();
@@ -311,3 +307,7 @@ public class LineChartAxon extends Application {
         launch(args);
     }
 }
+
+// TODO Save data option or copy to clipboard so it can imported into excel or igor.
+// TODO Add analysis functions such as: time to peak, peak amplitude
+// TODO Add crosshair/cursor placement
